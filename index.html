@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerta Digital</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .screen {
+            display: none;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        #screen1 { 
+            display: block; 
+            animation: fadeIn 0.8s ease;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,65,108,0.1);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 120px;
+            height: 120px;
+            background: rgba(118,75,162,0.1);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .lang-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 18px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logo {
+            font-size: 4.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #ff416c, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s infinite;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            background: linear-gradient(to right, #fff, #e0e0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: #e0e0ff;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-weight: 400;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff416c, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 32px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 15px 5px;
+            box-shadow: 0 10px 30px rgba(255, 65, 108, 0.4);
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn-exit {
+            background: transparent;
+            color: #e0e0ff;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 1rem;
+            padding: 10px 20px;
+            margin-top: 25px;
+            border-radius: 20px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .feature {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 18px 15px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff416c, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-text {
+            color: #e0e0ff;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            height: 8px;
+            margin: 25px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff416c, #764ba2);
+            border-radius: 12px;
+            width: 0%;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .question-counter {
+            color: #e0e0ff;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #e0e0ff;
+            justify-content: center;
+        }
+
+        .option.selected {
+            background: rgba(255,65,108,0.2);
+            border-color: #ff416c;
+            box-shadow: 0 0 0 2px rgba(255,65,108,0.3);
+        }
+
+        .result-icon {
+            font-size: 5rem;
+            margin: 15px 0;
+            animation: pulse 1.5s ease;
+            background: linear-gradient(to right, #ff416c, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .result-score {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            color: #fff;
+            margin: 15px 0;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .result-message {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+            text-align: left;
+            border-left: 5px solid #ff416c;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .resources {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+            text-align: left;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .resource-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 1.1rem;
+            color: #e0e0ff;
+        }
+
+        .resource-emoji {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            width: 30px;
+            text-align: center;
+            background: linear-gradient(to right, #ff416c, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .urgent-help {
+            background: rgba(255,65,108,0.1);
+            border: 2px solid #ff416c;
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .author-footer {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(8px);
+            padding: 18px;
+            border-radius: 18px;
+            margin: 30px 0 15px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            color: #e0e0ff;
+        }
+
+        .author-name {
+            color: #ff416c;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .author-title {
+            color: #e0e0ff;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -2;
+            opacity: 0.4;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            animation: float 8s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-100px) translateX(100px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Partícules de fons -->
+    <div class="particles" id="particles"></div>
+
+    <!-- PANTALLA 1 - PORTADA -->
+    <div id="screen1" class="screen">
+        <div class="card">
+            <button class="lang-toggle" onclick="toggleLang()">CA / ES</button>
+            <div class="logo">🔍</div>
+            <h1 id="title">Alerta Digital</h1>
+            <p id="subtitle">Descobreix si la teva relació digital és sana 💭</p>
+            
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="feature-icon">🛡️</div>
+                    <div class="feature-text" id="f1">100% Anònima</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text" id="f2">5 minuts</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text" id="f3">Resultat personal</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💖</div>
+                    <div class="feature-text" id="f4">T'ajudem</div>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="showScreen(2)" id="startBtn">
+                COMENÇAR 🚀
+            </button>
+            
+            <div class="author-footer">
+                <div class="author-name">Eina desenvolupada per Cristina Villanueva Comellas</div>
+                <div class="author-title">Educadora Social Sanitària</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 2 - PREGUNTES -->
+    <div id="screen2" class="screen">
+        <div class="card">
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            
+            <div class="question-counter" id="questionNumber">Pregunta 1/15</div>
+            
+            <div class="question-text" id="questionText">
+                Pregunta aquí
+            </div>
+            
+            <div class="options-container" id="optionsContainer">
+                <!-- Opcions es carreguen aquí -->
+            </div>
+            
+            <button class="btn" onclick="nextQuestion()" id="nextBtn" disabled>
+                Següent ➡️
+            </button>
+            
+            <button class="btn btn-exit" id="exitBtn" onclick="showScreen('resources')">
+                No vull continuar → Veure recursos
+            </button>
+        </div>
+    </div>
+
+    <!-- PANTALLA 3 - RESULTATS -->
+    <div id="screen3" class="screen">
+        <div class="card">
+            <div id="resultContent">
+                <!-- Resultats -->
+            </div>
+            <button class="btn" id="restartBtn" onclick="showScreen(1)">
+                Tornar a Començar 🔄
+            </button>
+        </div>
+    </div>
+
+    <!-- PANTALLA RECURSOS -->
+    <div id="screen-resources" class="screen">
+        <div class="card">
+            <h2 id="resTitle">Recursos d'Ajuda</h2>
+            
+            <div class="resources">
+                <div class="resource-item">
+                    <span class="resource-emoji">📞</span>
+                    <span><strong>016</strong> – Atenció 24h (no deixa rastre a la factura)</span>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-emoji">☎️</span>
+                    <span><strong>900 22 22 92</strong> – ATENPRO (Suport telefònic)</span>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-emoji">🌐</span>
+                    <span><a href="https://www.savethechildren.es" target="_blank" style="color: #e0e0ff; text-decoration: underline;">Save the Children</a></span>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-emoji">📱</span>
+                    <span><a href="https://www.pantallasamigas.net" target="_blank" style="color: #e0e0ff; text-decoration: underline;">PantallasAmigas</a></span>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="showScreen(1)">
+                Tornar a l'inici
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Genera partícules de fons
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            particle.style.width = Math.random() * 4 + 4 + 'px';
+            particle.style.height = particle.style.width;
+            particlesContainer.appendChild(particle);
+        }
+
+        // Textos per idioma
+        const texts = {
+            ca: {
+                title: "Alerta Digital",
+                subtitle: "Descobreix si la teva relació digital és sana",
+                f1: "100% Anònima",
+                f2: "5 minuts",
+                f3: "Resultat personal",
+                f4: "T'ajudem",
+                startBtn: "COMENÇAR 🚀",
+                nextBtn: "Següent ➡️",
+                exitBtn: "No vull continuar → Veure recursos",
+                resTitle: "Recursos d'Ajuda",
+                perfect: "Excel·lent!",
+                attention: "Atenció amb Alguns Senyals",
+                warning: "Senyals d'Alerta Importants",
+                urgent: "Necessites Ajuda Professional",
+                shareBtn: "Comparteix aquests valors 💫",
+                resourcesBtn1: "Veure Recursos d'Ajuda 📚",
+                resourcesBtn2: "Recursos d'Ajuda Urgent 🆘",
+                contactBtn: "Contactar Ara Mateix 📞",
+                restartBtn: "Tornar a Començar 🔄",
+                // Missatges de resultats
+                resultPerfect: "La teva relació amb les xarxes socials és completament sana. Has demostrat tenir una excel·lent capacitat per establir límits i mantenir relacions respectuoses.",
+                resultAttention: "Detectem algunes situacions que podrien estar afectant el teu benestar digital. No són alarmants, però sí és important que en siguis conscient.",
+                resultWarning: "Aquests resultats mostren patrons que poden estar afectant significativament el teu benestar emocional i la teva llibertat en les relacions digitals.",
+                resultUrgent: "Els indicadors mostren patrons claros de violència digital que estan afectant la teva salut emocional i la teva llibertat.",
+                resultAdvice1: "🔍 Has identificat alguns indicadors que cal tenir en compte",
+                resultAdvice2: "🚨 Detectem diversos indicadors de risc",
+                resultAdvice3: "🚨 CRÍTIC: Aquests resultats indiquen una situació de risc elevat",
+                resultHelp: "🆘 És important que actuïs:",
+                resultHelpUrgent: "⚠️ Aquesta situació requereix atenció immediata:",
+                resultUrgentLine1: "No estàs sola/sol",
+                resultUrgentLine2: "Aquestes situacions no són normals",
+                resultUrgentLine3: "Mereixes relacions sanes i respectuoses",
+                resultUrgentLine4: "Hi ha professionals que et poden ajudar",
+                resultScore: "Puntuació: ",
+                recommendReflect: "Reflexiona sobre aquests indicadors",
+                recommendTalk: "Parla amb algú de confiança",
+                recommendSetLimits: "Estableix límits més clars",
+                recommendCheckResources: "Consulta els recursos d'ajuda"
+            },
+            es: {
+                title: "Alerta Digital",
+                subtitle: "Descubre si tu relación digital es sana",
+                f1: "100% Anónima",
+                f2: "5 minutos",
+                f3: "Resultado personal",
+                f4: "Te ayudamos",
+                startBtn: "EMPEZAR 🚀",
+                nextBtn: "Siguiente ➡️",
+                exitBtn: "No quiero continuar → Ver recursos",
+                resTitle: "Recursos de Ayuda",
+                perfect: "¡Excelente!",
+                attention: "Atención con Algunas Señales",
+                warning: "Señales de Alerta Importantes",
+                urgent: "Necesitas Ayuda Profesional",
+                shareBtn: "Comparte estos valores 💫",
+                resourcesBtn1: "Ver Recursos de Ayuda 📚",
+                resourcesBtn2: "Recursos de Ayuda Urgente 🆘",
+                contactBtn: "Contactar Ahora Mismo 📞",
+                restartBtn: "Volver a Empezar 🔄",
+                // Missatges de resultats
+                resultPerfect: "Tu relación con las redes sociales es completamente sana. Has demostrado tener una excelente capacidad para establecer límites y mantener relaciones respetuosas.",
+                resultAttention: "Detectamos algunas situaciones que podrían estar afectando tu bienestar digital. No son alarmantes, pero sí es importante que seas consciente de ellas.",
+                resultWarning: "Estos resultados muestran patrones que pueden estar afectando significativamente tu bienestar emocional y tu libertad en las relaciones digitales.",
+                resultUrgent: "Los indicadores muestran patrones claros de violencia digital que están afectando tu salud emocional y tu libertad.",
+                resultAdvice1: "🔍 Has identificado algunos indicadores que debes tener en cuenta",
+                resultAdvice2: "🚨 Detectamos diversos indicadores de riesgo",
+                resultAdvice3: "🚨 CRÍTICO: Estos resultados indican una situación de riesgo elevado",
+                resultHelp: "🆘 Es importante que actúes:",
+                resultHelpUrgent: "⚠️ Esta situación requiere atención inmediata:",
+                resultUrgentLine1: "No estás sola/solo",
+                resultUrgentLine2: "Estas situaciones no son normales",
+                resultUrgentLine3: "Mereces relaciones sanas y respetuosas",
+                resultUrgentLine4: "Hay profesionales que pueden ayudarte",
+                resultScore: "Puntuación: ",
+                recommendReflect: "Reflexiona sobre estos indicadores",
+                recommendTalk: "Habla con alguien de confianza",
+                recommendSetLimits: "Establece límites más claros",
+                recommendCheckResources: "Consulta los recursos de ayuda"
+            }
+        };
+
+        // Preguntes per idioma
+        const questionsCA = [
+            "Has deixat de quedar amb les teves amistats per por o perquè a la teva parella no li agrada?",
+            "La teva parella et controla amb qui parles a les xarxes socials?",
+            "T'has vist pressionat/da a enviar fotos o vídeos íntims?",
+            "¿Amagues aspectes de la teva relació per por o vergonya?",
+            "Acceptes normes que no t'agraden per no disgustar la teva parella?",
+            "T'alteres quan et deixen en 'vist' o no responen?",
+            "Segueixes influencers que promouen rols de gènere tradicionals?",
+            "Et compares amb ideals de bellesa de les xarxes?",
+            "Consideres 'normals' comentaris masclistes a Internet?",
+            "Has participat en reptes sexualitzats per sentir-te acceptat/da?",
+            "Revises el mòbil compulsivament per si t'ha escrit la parella?",
+            "Tens problemes per dormir o et despertes a la nit pensant-hi?",
+            "Heu compartit contrasenyes com a prova d'amor?",
+            "Amagues la pantalla quan la família s'apropa?",
+            "Has baixat les notes sense motiu aparent?"
+        ];
+
+        const questionsES = [
+            "¿Has dejado de quedar con tus amistades por miedo o porque a tu pareja no le gusta?",
+            "¿Tu pareja te controla con quién hablas en redes sociales?",
+            "¿Te has sentido presionado/a a enviar fotos o vídeos íntimos?",
+            "¿Ocultas aspectos de tu relación por miedo o vergüenza?",
+            "¿Aceptas normas que no te gustan para no disgustar a tu pareja?",
+            "¿Te alteras cuando te dejan en 'visto' o no responden?",
+            "¿Sigues influencers que promueven roles de género tradicionales?",
+            "¿Te comparas con ideales de belleza de las redes?",
+            "¿Consideras 'normales' comentarios machistas en Internet?",
+            "¿Has participado en retos sexualizados para sentirte aceptado/a?",
+            "¿Revisas el móvil compulsivamente por si te ha escrito tu pareja?",
+            "¿Tienes problemas para dormir o te despiertas por la noche pensando en ello?",
+            "¿Habéis compartido contraseñas como prueba de amor?",
+            "¿Ocultas la pantalla cuando tu familia se acerca?",
+            "¿Has bajado tus notas sin motivo aparente?"
+        ];
+
+        const optionsCA = ["Sí", "A vegades", "No", "Prefereixo no respondre"];
+        const optionsES = ["Sí", "A veces", "No", "Prefiero no responder"];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let lang = 'ca'; // per defecte
+
+        function toggleLang() {
+            lang = lang === 'ca' ? 'es' : 'ca';
+            updateTexts();
+            if (document.querySelector('#screen2').style.display !== 'none') {
+                loadQuestion(); // Recarrega la pregunta actual en el nou idioma
+            }
+            if (document.querySelector('#screen3').style.display !== 'none') {
+                showResults(); // Recarrega els resultats en el nou idioma
+            }
+        }
+
+        function updateTexts() {
+            if (!document.getElementById('title')) return;
+
+            document.getElementById('title').textContent = texts[lang].title;
+            document.getElementById('subtitle').textContent = texts[lang].subtitle;
+            document.getElementById('f1').textContent = texts[lang].f1;
+            document.getElementById('f2').textContent = texts[lang].f2;
+            document.getElementById('f3').textContent = texts[lang].f3;
+            document.getElementById('f4').textContent = texts[lang].f4;
+            document.getElementById('startBtn').textContent = texts[lang].startBtn;
+            document.getElementById('nextBtn').textContent = texts[lang].nextBtn;
+            document.getElementById('exitBtn').textContent = texts[lang].exitBtn;
+            document.getElementById('resTitle').textContent = texts[lang].resTitle;
+            document.getElementById('restartBtn').textContent = texts[lang].restartBtn;
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.style.display = 'none';
+            });
+            if (typeof screenId === 'number') {
+                document.getElementById('screen' + screenId).style.display = 'block';
+            } else {
+                document.getElementById('screen-' + screenId).style.display = 'block';
+            }
+            
+            if (screenId === 2) {
+                currentQuestion = 0;
+                score = 0;
+                loadQuestion();
+            }
+        }
+
+        function loadQuestion() {
+            const questions = lang === 'ca' ? questionsCA : questionsES;
+            const questionText = document.getElementById('questionText');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const progressBar = document.getElementById('progressBar');
+            const questionNumber = document.getElementById('questionNumber');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            questionText.textContent = questions[currentQuestion];
+            questionNumber.textContent = `Pregunta ${currentQuestion + 1}/15`;
+            progressBar.style.width = ((currentQuestion + 1) / 15) * 100 + '%';
+            
+            optionsContainer.innerHTML = '';
+            const opts = lang === 'ca' ? optionsCA : optionsES;
+            
+            opts.forEach((text, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.innerHTML = `<span>${text}</span>`;
+                
+                optionElement.onclick = function() {
+                    // Desmarca altres opcions
+                    document.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // Marca aquesta
+                    optionElement.classList.add('selected');
+                    // Activa botó "Següent"
+                    nextBtn.disabled = false;
+                    
+                    // Puntuació
+                    if (index === 0) score += 2; // Sí
+                    else if (index === 1) score += 1; // A vegades / A veces
+                    // No i Prefereixo no respondre = 0
+                };
+                
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            nextBtn.disabled = true;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < 15) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const resultContent = document.getElementById('resultContent');
+            let resultHTML = '';
+
+            if (score === 0) {
+                resultHTML = `
+                    <div class="result-icon">🎉</div>
+                    <h1>${texts[lang].perfect}</h1>
+                    <div class="result-score">${texts[lang].resultScore}${score}/30</div>
+                    <div class="result-message">
+                        <p><strong>🎊 ${texts[lang].perfect === "Excel·lent!" ? "Felicitats!" : "¡Felicitaciones!"}</strong></p>
+                        <p>${texts[lang].resultPerfect}</p>
+                        <p><strong>🌟 ${texts[lang].perfect === "Excel·lent!" ? "Continua així:" : "Sigue así:"}</strong> 
+                           ${texts[lang].perfect === "Excel·lent!" ? 
+                               "Seguex confiant en el teu criteri i recorda que el respecte i la llibertat personal són fonamentals en qualsevol relació." :
+                               "Sigue confiando en tu criterio y recuerda que el respeto y la libertad personal son fundamentales en cualquier relación."}
+                        </p>
+                    </div>
+                    <button class="btn" onclick="showScreen(1)">
+                        ${texts[lang].shareBtn}
+                    </button>
+                `;
+            } else if (score >= 1 && score <= 5) {
+                resultHTML = `
+                    <div class="result-icon">⚠️</div>
+                    <h1>${texts[lang].attention}</h1>
+                    <div class="result-score">${texts[lang].resultScore}${score}/30</div>
+                    <div class="result-message">
+                        <p><strong>🔍 ${texts[lang].resultAdvice1}</strong></p>
+                        <p>${texts[lang].resultAttention}</p>
+                        <p><strong>💡 ${texts[lang].resultHelp}</strong></p>
+                        <ul style="text-align: left; margin: 15px 0; padding-left: 20px;">
+                            <li>${texts[lang].recommendReflect}</li>
+                            <li>${texts[lang].recommendTalk}</li>
+                            <li>${texts[lang].recommendSetLimits}</li>
+                            <li>${texts[lang].recommendCheckResources}</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-warning" onclick="showScreen('resources')">
+                        ${texts[lang].resourcesBtn1}
+                    </button>
+                `;
+            } else if (score >= 6 && score <= 12) {
+                resultHTML = `
+                    <div class="result-icon">🚩</div>
+                    <h1>${texts[lang].warning}</h1>
+                    <div class="result-score">${texts[lang].resultScore}${score}/30</div>
+                    <div class="result-message">
+                        <p><strong>🚨 ${texts[lang].resultAdvice2}</strong></p>
+                        <p>${texts[lang].resultWarning}</p>
+                        <p><strong>🆘 ${texts[lang].resultHelp}</strong></p>
+                        <ul style="text-align: left; margin: 15px 0; padding-left: 20px;">
+                            <li>Busca ajuda professional</li>
+                            <li>Parla amb serveis especialitzats</li>
+                            <li>No normalitzis aquestes situacions</li>
+                            <li>Recorda: mereixes relacions respectuoses</li>
+                        </ul>
+                    </div>
+                    <div class="urgent-help">
+                        <h3>📞 Ajuda Immediata</h3>
+                        <p><strong>016</strong> - Atenció 24 hores</p>
+                        <p><strong>900 22 22 92</strong> - Teleassistència</p>
+                    </div>
+                    <button class="btn btn-danger" onclick="showScreen('resources')">
+                        ${texts[lang].resourcesBtn2}
+                    </button>
+                `;
+            } else {
+                resultHTML = `
+                    <div class="result-icon">🆘</div>
+                    <h1>${texts[lang].urgent}</h1>
+                    <div class="result-score">${texts[lang].resultScore}${score}/30</div>
+                    <div class="result-message">
+                        <p><strong>🚨 ${texts[lang].resultAdvice3}</strong></p>
+                        <p>${texts[lang].resultUrgent}</p>
+                        <p><strong>⚠️ ${texts[lang].resultHelpUrgent}</strong></p>
+                        <ul style="text-align: left; margin: 15px 0; padding-left: 20px;">
+                            <li>${texts[lang].resultUrgentLine1}</li>
+                            <li>${texts[lang].resultUrgentLine2}</li>
+                            <li>${texts[lang].resultUrgentLine3}</li>
+                            <li>${texts[lang].resultUrgentLine4}</li>
+                        </ul>
+                    </div>
+                    <div class="urgent-help" style="animation: pulse 1s infinite;">
+                        <h3>🚨 AJUDA IMMEDIATA</h3>
+                        <p><strong>016</strong> - ${texts[lang].perfect === "Excel·lent!" ? "No deixa rastre a la factura" : "No deja rastro en la factura"}</p>
+                        <p><strong>900 22 22 92</strong> - ATENPRO</p>
+                        <p><strong>@alertadigital</strong> - ${texts[lang].perfect === "Excel·lent!" ? "Suport en xarxes" : "Apoyo en redes"}</p>
+                    </div>
+                    <button class="btn btn-danger" onclick="showScreen('resources')" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                        ${texts[lang].contactBtn}
+                    </button>
+                `;
+            }
+            
+            resultContent.innerHTML = resultHTML;
+            showScreen(3);
+        }
+
+        // Inicialitza
+        updateTexts();
+        showScreen(1);
+    </script>
+</body>
+</html>
